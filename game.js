@@ -1,141 +1,19 @@
-// Performance optimization: Cache DOM elements and reuse them
-const DOM = {
-    grid: null,
-    score: null,
-    bestScore: null,
-    gameOverlay: null,
-    gameMessage: null
-};
-
-// Performance optimization: Pre-define directions
-const DIRECTIONS = {
-    ArrowUp: 'up',
-    ArrowDown: 'down',
-    ArrowLeft: 'left',
-    ArrowRight: 'right',
-    w: 'up',
-    s: 'down',
-    a: 'left',
-    d: 'right'
-};
-
-// Performance optimization: Request Animation Frame
-const requestAnimFrame = window.requestAnimationFrame || 
-                        window.mozRequestAnimationFrame ||
-                        window.webkitRequestAnimationFrame ||
-                        window.msRequestAnimationFrame ||
-                        (fn => setTimeout(fn, 1000/60));
-
 class Game2048 {
     constructor() {
-        try {
-            // Initialize game state
-            this.gridSize = 4;
-            this.tiles = [];
-            this.score = 0;
-            this.bestScore = 0;
-            this.gameOver = false;
-            this.animating = false;
-            this.moveInProgress = false;
-            
-            // Load saved state if available
-            this.loadState();
-            
-            // Initialize the game
-            this.initializeGame();
-        } catch (error) {
-            console.error('Error initializing game:', error);
-            this.showError('Failed to initialize the game. Please refresh the page.');
-        }
+        this.gridSize = 4;
+        this.tiles = [];
+        this.score = 0;
+        this.bestScore = localStorage.getItem('bestScore') || 0;
+        this.gameOver = false;
+        this.initializeGame();
     }
 
     initializeGame() {
-        try {
-            // Initialize grid with optimized array creation
-            this.grid = new Array(this.gridSize);
-            for (let i = 0; i < this.gridSize; i++) {
-                this.grid[i] = new Array(this.gridSize).fill(0);
-            }
-            
-            // Cache DOM elements
-            this.cacheDOM();
-            
-            // Initialize UI
-            this.updateUI();
-            
-            // Set up event listeners
-            this.setupEventListeners();
-            
-            // Add initial tiles
-            this.addRandomTile();
-            this.addRandomTile();
-            
-            // Save initial state
-            this.saveState();
-            
-            // Check for updates in the background
-            this.checkForUpdates();
-        } catch (error) {
-            console.error('Error in game initialization:', error);
-            this.showError('Failed to start the game. Please try again.');
-        }
-    }
-    
-    cacheDOM() {
-        // Cache frequently used DOM elements
-        DOM.grid = document.querySelector('.grid-container');
-        DOM.score = document.getElementById('score');
-        DOM.bestScore = document.getElementById('best-score');
-        DOM.gameOverlay = document.querySelector('.game-overlay');
-        DOM.gameMessage = document.querySelector('.game-message');
-    }
-    
-    loadState() {
-        try {
-            const savedState = localStorage.getItem('game2048_state');
-            if (savedState) {
-                const { grid, score, bestScore } = JSON.parse(savedState);
-                this.grid = grid;
-                this.score = score;
-                this.bestScore = bestScore;
-            }
-        } catch (e) {
-            console.warn('Failed to load game state:', e);
-            // Clear corrupted state
-            localStorage.removeItem('game2048_state');
-        }
-    }
-    
-    saveState() {
-        try {
-            const gameState = {
-                grid: this.grid,
-                score: this.score,
-                bestScore: this.bestScore,
-                timestamp: Date.now()
-            };
-            localStorage.setItem('game2048_state', JSON.stringify(gameState));
-            localStorage.setItem('bestScore', this.bestScore);
-        } catch (e) {
-            console.warn('Failed to save game state:', e);
-        }
-    }
-    
-    clearState() {
-        localStorage.removeItem('game2048_state');
-    }
-    
-    checkForUpdates() {
-        // Check for service worker updates in the background
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistration()
-                .then(reg => {
-                    if (reg) {
-                        reg.update().catch(console.warn);
-                    }
-                })
-                .catch(console.warn);
-        }
+        this.grid = Array(this.gridSize).fill().map(() => Array(this.gridSize).fill(0));
+        this.addRandomTile();
+        this.addRandomTile();
+        this.updateUI();
+        this.setupEventListeners();
     }
 
     setupEventListeners() {
@@ -226,22 +104,21 @@ class Game2048 {
     }
 
     handleKeyPress(e) {
-        // Prevent default for arrow keys to avoid page scrolling
-        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'w', 'a', 's', 'd', 'W', 'A', 'S', 'D'].includes(e.key)) {
-            e.preventDefault();
-        }
+        if (this.gameOver) return;
         
-        if (this.gameOver || this.moveInProgress) return;
-        
-        const direction = DIRECTIONS[e.key];
-        if (direction) {
-            this.moveInProgress = true;
-            
-            // Use requestAnimationFrame for smoother animations
-            requestAnimFrame(() => {
-                this[`move${direction.charAt(0).toUpperCase() + direction.slice(1)}`]();
-                this.moveInProgress = false;
-            });
+        switch(e.key) {
+            case 'ArrowUp':
+                this.moveUp();
+                break;
+            case 'ArrowDown':
+                this.moveDown();
+                break;
+            case 'ArrowLeft':
+                this.moveLeft();
+                break;
+            case 'ArrowRight':
+                this.moveRight();
+                break;
         }
     }
 
