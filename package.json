@@ -5,14 +5,9 @@
   "main": "game.js",
   "scripts": {
     "start": "http-server -c-1 -p 8080",
-    "build": "npm run clean && npm run create-dist && npm run copy && npm run minify-html && npm run minify-css && npm run minify-js && npm run generate-sw",
-    "clean": "rimraf dist",
-    "create-dist": "mkdirp dist",
-    "copy": "node copy-assets.js",
-    "minify-html": "html-minifier --collapse-whitespace --remove-comments --remove-optional-tags --remove-redundant-attributes --remove-script-type-attributes --remove-tag-whitespace --use-short-doctype --minify-css true --minify-js true -o dist/index.html index.html",
-    "minify-css": "cleancss -o dist/styles.min.css styles.css",
-    "minify-js": "terser --compress --mangle --output dist/game.min.js -- game.js",
-    "generate-sw": "workbox generateSW workbox-config.js",
+    "build": "npm run clean && npm run copy-files",
+    "clean": "rimraf dist && mkdirp dist",
+    "copy-files": "node copy-files.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "deploy": "gh-pages -d dist"
   },
@@ -20,14 +15,10 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "clean-css-cli": "^5.6.1",
     "gh-pages": "^4.0.0",
-    "html-minifier": "^4.0.0",
     "http-server": "^14.1.1",
     "mkdirp": "^2.1.6",
-    "rimraf": "^3.0.2",
-    "terser": "^5.14.2",
-    "workbox-cli": "^6.5.4"
+    "rimraf": "^3.0.2"
   },
   "dependencies": {}
 }
