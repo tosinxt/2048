@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+
+# Build files
+dist/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor directories and files
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Build output
+*.min.js
+*.min.css
+*.min.html
+
+# Service worker
+sw.js
+workbox-*.js
+workbox-*.map
+
+# Cache
+.cache/
+.parcel-cache/
+
+# Local development
+.local/
